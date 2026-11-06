@@ -4,7 +4,7 @@ name: tests
 # 所有联网、发消息、看图、API Key 相关用例在 tests/ 里都是 mock 的。
 on:
   push:
-    branches: [main, feature4]
+    branches: [main, feature4, 'test/**']
   pull_request:
   workflow_dispatch:
 
@@ -66,7 +66,7 @@ jobs:
           # SignPath 那两步还在用 upload-artifact v3 时代的 archive 输入（v4 已经没有），
           # 签名路径当前没启用，先只忽略这一条；其它问题一律不许过。
           & (Join-Path $dir 'actionlint.exe') -ignore 'input "archive" is not defined' `
-            .github/workflows/build.yml .github/workflows/installer.yml .github/workflows/tests.yml
+            .github/workflows/build.yml .github/workflows/installer.yml .github/workflows/tests.yml .github/workflows/macos.yml
           if ($LASTEXITCODE -ne 0) {
             Write-Output '::error title=actionlint::workflow 文件有静态错误，见上方输出'
             exit 1

@@ -1,6 +1,8 @@
 name: macOS experimental launcher
 
 on:
+  push:
+    branches: [main, 'test/**']
   pull_request:
   workflow_dispatch:
 
