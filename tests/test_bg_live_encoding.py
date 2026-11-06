@@ -5,12 +5,15 @@ import unittest
 import tempfile
 import ast
 import time
+import ctypes
 from types import SimpleNamespace
 from contextlib import nullcontext
 from unittest.mock import patch, Mock
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from bridge import bg_sender as bg
+# 这些用例的 Win32 调用已在 setUp 中替换；非 Windows 只需在导入时提供 DLL 桩。
+with (patch.object(ctypes, 'WinDLL', create=True, return_value=Mock()) if os.name != 'nt' else nullcontext()):
+    from bridge import bg_sender as bg
 
 
 class LiveEncodingTests(unittest.TestCase):

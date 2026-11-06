@@ -2,6 +2,8 @@
 
 # 🐋 Whale Girl — a DeepSeek-powered WeChat companion bot
 
+**Experimental macOS port:** a native SwiftUI launcher and a foreground, single-private-chat text bridge are available in source. See [macOS build, setup and limitations](docs/macOS.md). Real WeChat send/receive validation is still pending; this is not feature parity with the Windows edition.
+
 [![GitHub release](https://img.shields.io/github/v/release/Banan1cee/whale_girl)](https://github.com/Banan1cee/whale_girl/releases/latest)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-339933)](https://nodejs.org/)

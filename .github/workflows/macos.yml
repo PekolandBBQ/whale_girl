@@ -1,0 +1,59 @@
+name: macOS experimental launcher
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15-intel, macos-15]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.22.2
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test dependencies
+        # 50.x 已不提供当前 Intel macOS 所需的 wheel；回归只使用稳定 AES API。
+        run: |
+          python -m pip install --only-binary=:all: requests pillow cryptography==46.0.3
+      - name: Source checks
+        run: |
+          node scripts/check-layers.js
+          node scripts/release-check.js
+          node scripts/privacy-scan.js .
+      - name: Node regression tests
+        # macOS 的 /var 是系统软链；图库安全规则要求真实目录，不放松链接检查。
+        run: |
+          export TMPDIR="$(python -c 'import os,tempfile; print(os.path.realpath(tempfile.gettempdir()))')"
+          export USERNAME="$USER"
+          npm test
+      - name: macOS adapter tests (no WeChat or permissions needed)
+        run: python -m unittest discover -s tests/macos -v
+      - name: Build native app with bundled Node
+        run: bash scripts/build-macos.sh
+      - name: Packaged kernel smoke test
+        run: |
+          case "$(uname -m)" in
+            arm64) arch=arm64 ;;
+            x86_64) arch=x64 ;;
+            *) exit 1 ;;
+          esac
+          export WHALE_MAC_TEST_PAYLOAD="$PWD/dist/WhaleGirl-$arch.app/Contents/Resources/app"
+          export WHALE_MAC_TEST_NODE="$PWD/dist/WhaleGirl-$arch.app/Contents/Resources/node/bin/node"
+          node tests/macos-host.test.js
+      - uses: actions/upload-artifact@v4
+        with:
+          name: whale-girl-${{ matrix.runner }}
+          path: dist/WhaleGirl-macos-*.zip
+          if-no-files-found: error

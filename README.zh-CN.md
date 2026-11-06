@@ -2,6 +2,8 @@
 
 # 🐋 鲸鲸 · DeepSeek 鲸鱼娘聊天机器人
 
+**macOS 实验版**：新增原生 SwiftUI 启动器与单私聊前台文字桥接，构建和限制见 [macOS 文档](docs/macOS.md)。真实微信收发尚待验收，暂未覆盖 Windows 版全部功能。
+
 [![GitHub release](https://img.shields.io/github/v/release/Banan1cee/whale_girl)](https://github.com/Banan1cee/whale_girl/releases/latest)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18-339933)](https://nodejs.org/)

@@ -2,11 +2,15 @@
 import os
 import sys
 import unittest
+import ctypes
+from contextlib import nullcontext
 from unittest.mock import Mock, patch
 from types import SimpleNamespace
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from bridge import uia_boot as boot
+# 测试观察的是恢复策略，不执行原生 DLL；让离线用例也能在 macOS 导入。
+with (patch.object(ctypes, 'WinDLL', create=True, return_value=Mock()) if os.name != 'nt' else nullcontext()):
+    from bridge import uia_boot as boot
 
 
 class RecoveryTests(unittest.TestCase):

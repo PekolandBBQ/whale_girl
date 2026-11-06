@@ -1,0 +1,4 @@
+# 固定已审阅的 AX 界面读取实现；不使用其搜索、切换会话或直接发送工具。
+wechat-mcp @ git+https://github.com/dustin573/wechat-mcp.git@c6c600ae068c113224f984656db40f8cec4d0164
+# MCP 间接引入 pyjwt[crypto]；50.x 在 Intel Mac 上需要本地 OpenSSL/Rust 构建。
+cryptography==46.0.3

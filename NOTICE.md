@@ -42,6 +42,7 @@
 | VB-CABLE | 安装包内的官方安装程序 | VB-Audio Donationware；按官方条款使用 |
 | Noto Sans SC | `website/fonts/` | SIL Open Font License 1.1；许可证见该目录 |
 | Node.js / Python / .NET 运行时 | `runtime/`、安装包 | 各自项目的许可证；随安装包按原条款分发 |
+| wechat-mcp (dustin573) | macOS 桥接的独立 Python 环境 | MIT；固定提交与来源见 `macos/bridge-requirements.txt`，许可证随 Python 包安装；本项目不复制其源码 |
 
 如果你再分发本项目，请同时保留上述第三方组件的许可证和版权声明。
 
