@@ -19,4 +19,5 @@ if [[ ! -x "$DATA_ROOT/bridge-venv/bin/python" ]]; then
   "$UV" venv --python 3.12 "$DATA_ROOT/bridge-venv"
 fi
 "$UV" pip install --python "$DATA_ROOT/bridge-venv/bin/python" -r "$SOURCE_ROOT/macos/bridge-requirements.txt"
-echo '桥接环境已安装。请在系统设置中为鲸鲸授权辅助功能和屏幕录制，然后重新打开鲸鲸。'
+echo '桥接环境已安装。请在系统设置中为桥接 Python 授权辅助功能和屏幕录制，然后重新打开鲸鲸。实际文件：'
+"$DATA_ROOT/bridge-venv/bin/python" -c 'import os,sys; print(os.path.realpath(sys.executable))'

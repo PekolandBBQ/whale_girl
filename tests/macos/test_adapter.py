@@ -88,8 +88,11 @@ class AdapterTests(unittest.TestCase):
         ui = adapter.WeChatUI.__new__(adapter.WeChatUI)
         state = dict(access=True, screen=True, active=True, title='test-friend')
         app = types.SimpleNamespace(isActive=lambda: state['active'], processIdentifier=lambda: 123)
-        ui.AX = types.SimpleNamespace(AXIsProcessTrusted=lambda: state['access'], AXUIElementCreateApplication=lambda pid: 'ax-app')
-        ui.Quartz = types.SimpleNamespace(CGPreflightScreenCaptureAccess=lambda: state['screen'])
+        prompts = []
+        ui.AX = types.SimpleNamespace(AXIsProcessTrusted=lambda: state['access'], AXUIElementCreateApplication=lambda pid: 'ax-app',
+            kAXTrustedCheckOptionPrompt='prompt', AXIsProcessTrustedWithOptions=lambda options: prompts.append(('access', options)))
+        ui.Quartz = types.SimpleNamespace(CGPreflightScreenCaptureAccess=lambda: state['screen'],
+            CGRequestScreenCaptureAccess=lambda: prompts.append(('screen', True)))
         ui.AppKit = types.SimpleNamespace(NSRunningApplication=types.SimpleNamespace(
             runningApplicationsWithBundleIdentifier_=lambda bundle: [app]))
         ui.accessibility = types.SimpleNamespace(current_chat_name=lambda app: state['title'])
@@ -101,6 +104,7 @@ class AdapterTests(unittest.TestCase):
             with self.assertRaisesRegex(adapter.BridgeError, reason):
                 ui.context('test-friend')
             state[key] = original
+        self.assertEqual(prompts, [('access', {'prompt': True}), ('screen', True)])
 
     def test_protocol_does_not_expose_exception_content(self):
         class FailingUI:

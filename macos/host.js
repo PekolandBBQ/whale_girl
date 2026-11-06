@@ -9,8 +9,8 @@ const { Adapter, Bridge } = require('./bridge');
 const { describeError } = require('../src/infra/errors');
 
 const BRIDGE_ERRORS = {
-  accessibility_permission: '请授予鲸鲸辅助功能权限，然后重开应用',
-  screen_recording_permission: '请授予鲸鲸屏幕录制权限，然后重开应用',
+  accessibility_permission: '请为桥接 Python 开启辅助功能权限；点“显示 Python”定位实际文件，授权后重新启用',
+  screen_recording_permission: '请为桥接 Python 开启屏幕录制权限；点“显示 Python”定位实际文件，授权后重开应用',
   wechat_not_foreground: '请打开并登录微信，保持目标私聊在前台后重新启用',
   chat_changed: '当前会话与指定私聊不一致，请确认后重新启用',
   draft_present: '微信输入框已有内容；草稿已保留，请处理后重新启用',

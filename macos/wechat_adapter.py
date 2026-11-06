@@ -26,8 +26,11 @@ class WeChatUI:
 
     def context(self, chat):
         if not self.AX.AXIsProcessTrusted():
+            # 由实际执行 UI 操作的解释器发起请求，让系统列出正确的授权对象。
+            self.AX.AXIsProcessTrustedWithOptions({self.AX.kAXTrustedCheckOptionPrompt: True})
             raise BridgeError('accessibility_permission')
         if not self.Quartz.CGPreflightScreenCaptureAccess():
+            self.Quartz.CGRequestScreenCaptureAccess()
             raise BridgeError('screen_recording_permission')
         apps = self.AppKit.NSRunningApplication.runningApplicationsWithBundleIdentifier_('com.tencent.xinWeChat')
         if len(apps) != 1 or not apps[0].isActive():

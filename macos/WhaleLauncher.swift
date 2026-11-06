@@ -22,6 +22,7 @@ final class LauncherModel: ObservableObject {
     private var input: Pipe?
     private let outputQueue = DispatchQueue(label: "whale.output")
     private var outputBuffer = Data()
+    var onProcessExit: (() -> Void)?
 
     init() {
         root = ProcessInfo.processInfo.environment["WHALE_MAC_DATA_DIR"].map { URL(fileURLWithPath: $0) }
@@ -87,6 +88,8 @@ final class LauncherModel: ObservableObject {
                     self.process = nil; self.input = nil
                     self.running = false; self.busy = false; self.bridging = false; self.serviceURL = ""
                     self.status = task.terminationStatus == 0 ? "内核已停止" : "内核异常退出（\(task.terminationStatus)），请检查数据目录日志"
+                    self.onProcessExit?()
+                    self.onProcessExit = nil
                 }
             }
             process = task; input = stdin; busy = true; status = "正在启动…"
@@ -167,7 +170,7 @@ final class LauncherModel: ObservableObject {
                 DispatchQueue.main.async {
                     self?.installer = nil; self?.busy = false
                     self?.bridgeStatus = task.terminationStatus == 0
-                        ? "桥接环境安装完成，请授权辅助功能和屏幕录制后重开应用"
+                        ? "桥接环境安装完成，请为桥接 Python 授权辅助功能和屏幕录制"
                         : "安装失败。请先安装 uv；详情见数据目录 bridge-install.log"
                 }
             }
@@ -180,6 +183,8 @@ final class LauncherModel: ObservableObject {
     var installing: Bool { installer != nil }
     func quit() { stop() }
     func openData() { NSWorkspace.shared.open(root) }
+    var pythonExecutable: URL { URL(fileURLWithPath: python).resolvingSymlinksInPath() }
+    func revealPython() { NSWorkspace.shared.activateFileViewerSelecting([pythonExecutable]) }
     func permissions(_ pane: String) {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(pane)") { NSWorkspace.shared.open(url) }
     }
@@ -229,8 +234,12 @@ struct LauncherView: View {
                     HStack {
                         Button("辅助功能权限") { state.permissions("Privacy_Accessibility") }
                         Button("屏幕录制权限") { state.permissions("Privacy_ScreenCapture") }
+                        Button("显示 Python") { state.revealPython() }
+                            .disabled(!FileManager.default.isExecutableFile(atPath: state.python))
                         Link("安装 uv", destination: URL(string: "https://docs.astral.sh/uv/getting-started/installation/")!)
                     }.font(.caption)
+                    Text("系统可能把桥接识别为 python3.12。请授权“显示 Python”定位的文件；权限也适用于通过同一解释器运行的其他脚本。")
+                        .font(.caption).foregroundStyle(.secondary)
                 }.textFieldStyle(.roundedBorder).padding(10)
             }
             Text("UI 自动化：不注入进程、不读取微信数据库。群聊、图片和语音暂不支持。切换会话、有草稿或发送结果不明时停止；不能保证不触发微信风控。")
@@ -248,10 +257,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return .terminateCancel
         }
         guard model.hasChild else { return .terminateNow }
+        // terminateLater 的退出流程不会驱动普通 Timer；直接由子进程退出回调答复。
+        model.onProcessExit = { sender.reply(toApplicationShouldTerminate: true) }
         model.quit()
-        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            if !model.hasChild { timer.invalidate(); sender.reply(toApplicationShouldTerminate: true) }
-        }
         return .terminateLater
     }
 }
